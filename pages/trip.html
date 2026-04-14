@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trip Memories – Trip</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="app-page">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-2-5.5-.5L10 5 1.8 6.2a1 1 0 0 0-.5 1.7l2.5 2.5L2.3 13a1 1 0 0 0 .3 1l7.4 7.4a1 1 0 0 0 1-.3l2.6-1.5 2.5 2.5a1 1 0 0 0 1.7-.5z"/></svg>
+        </div>
+        <span class="brand-name">Trip Memories</span>
+      </div>
+      <div class="topbar-right">
+        <span id="welcome-msg" class="welcome-text"></span>
+        <button id="logout-btn" class="btn btn-secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <a href="dashboard.html" class="back-btn">← Back to Trips</a>
+    <div class="page-header">
+      <h2 id="trip-title">Loading...</h2>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="memories">📷 Memories</button>
+      <button class="tab-btn" data-tab="todos">✅ To-Do</button>
+      <button class="tab-btn" data-tab="logs">📝 Trip Logs</button>
+      <button class="tab-btn" data-tab="calendar">📅 Calendar</button>
+    </div>
+
+    <!-- MEMORIES TAB -->
+    <div id="tab-memories" class="tab-panel active">
+      <div class="panel-header">
+        <h3>Photo Memories</h3>
+        <button id="add-memory-btn" class="btn btn-primary">+ Add Memory</button>
+      </div>
+      <div id="add-memory-form" class="form-card hidden">
+        <div class="form-group"><label>Title</label><input type="text" id="mem-title" placeholder="Memory title" /></div>
+        <div class="form-group"><label>Description</label><textarea id="mem-desc" rows="3" placeholder="Describe this memory..."></textarea></div>
+        <div class="form-group"><label>Image URL</label><input type="text" id="mem-img" placeholder="https://example.com/photo.jpg" /></div>
+        <div class="form-actions">
+          <button id="save-memory-btn" class="btn btn-primary">Save</button>
+          <button id="cancel-memory-btn" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+      <div id="memories-list" class="memories-grid"></div>
+    </div>
+
+    <!-- TODOS TAB -->
+    <div id="tab-todos" class="tab-panel hidden">
+      <div class="todo-layout">
+        <div class="todo-main">
+          <div class="panel-header">
+            <h3>To-Do List</h3>
+          </div>
+          <div class="todo-input-row">
+            <input type="text" id="todo-input" placeholder="Add a new task..." />
+            <button id="add-todo-btn" class="btn btn-primary">+ Add</button>
+          </div>
+          <div id="todos-list"></div>
+        </div>
+        <div class="todo-sidebar">
+          <h3>Progress</h3>
+          <div class="progress-number" id="progress-pct">0%</div>
+          <div class="progress-label">Complete</div>
+          <div class="progress-bar"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
+          <div class="progress-stats">
+            <div class="stat"><span>Total</span><strong id="stat-total">0</strong></div>
+            <div class="stat"><span>Done</span><strong id="stat-done" class="green">0</strong></div>
+            <div class="stat"><span>Left</span><strong id="stat-left" class="orange">0</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGS TAB -->
+    <div id="tab-logs" class="tab-panel hidden">
+      <div class="panel-header">
+        <h3>Trip Logs</h3>
+        <button id="add-log-btn" class="btn btn-primary">+ Add Entry</button>
+      </div>
+      <div id="add-log-form" class="form-card hidden">
+        <div class="form-group"><label>Title</label><input type="text" id="log-title" placeholder="Entry title" /></div>
+        <div class="form-group"><label>Content</label><textarea id="log-content" rows="6" placeholder="Write about your experience..."></textarea></div>
+        <div class="form-actions">
+          <button id="save-log-btn" class="btn btn-primary">Save</button>
+          <button id="cancel-log-btn" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+      <div id="logs-list"></div>
+    </div>
+
+    <!-- CALENDAR TAB -->
+    <div id="tab-calendar" class="tab-panel hidden">
+      <div class="panel-header">
+        <h3>Activities Calendar</h3>
+        <button id="add-activity-btn" class="btn btn-primary">+ Add Activity</button>
+      </div>
+      <div id="add-activity-form" class="form-card hidden">
+        <div class="form-row">
+          <div class="form-group"><label>Date</label><input type="date" id="act-date" /></div>
+          <div class="form-group"><label>Time</label><input type="time" id="act-time" /></div>
+          <div class="form-group"><label>Title</label><input type="text" id="act-title" placeholder="Activity name" /></div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="act-category">
+              <option value="sightseeing">Sightseeing</option>
+              <option value="food">Food</option>
+              <option value="activity">Activity</option>
+              <option value="transport">Transport</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="act-desc" rows="2" placeholder="Additional details..."></textarea></div>
+        <div class="form-actions">
+          <button id="save-activity-btn" class="btn btn-primary">Save</button>
+          <button id="cancel-activity-btn" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+      <div id="activities-list"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth, db } from '../js/firebase.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import {
+      collection, addDoc, deleteDoc, doc, updateDoc,
+      onSnapshot, serverTimestamp, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const ALLOWED_EMAILS = ["yourmail@gmail.com","friend1@gmail.com","friend2@gmail.com"];
+    const params = new URLSearchParams(window.location.search);
+    const tripId = params.get('id');
+    const tripName = params.get('name') || 'Trip';
+
+    document.getElementById('trip-title').textContent = decodeURIComponent(tripName);
+
+    // Auth guard
+    onAuthStateChanged(auth, (user) => {
+      if (!user || !ALLOWED_EMAILS.includes(user.email)) {
+        window.location.href = 'login.html'; return;
+      }
+      document.getElementById('welcome-msg').textContent = user.displayName || user.email;
+      initAll();
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      signOut(auth).then(() => window.location.href = 'login.html');
+    });
+
+    // ── TABS ──────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    function initAll() {
+      initMemories();
+      initTodos();
+      initLogs();
+      initCalendar();
+    }
+
+    // ── MEMORIES ──────────────────────────────────────────────
+    function initMemories() {
+      const col = collection(db, 'trips', tripId, 'memories');
+      const form = document.getElementById('add-memory-form');
+
+      document.getElementById('add-memory-btn').onclick = () => form.classList.toggle('hidden');
+      document.getElementById('cancel-memory-btn').onclick = () => form.classList.add('hidden');
+
+      document.getElementById('save-memory-btn').onclick = async () => {
+        const title = document.getElementById('mem-title').value.trim();
+        if (!title) return;
+        await addDoc(col, {
+          title,
+          description: document.getElementById('mem-desc').value.trim(),
+          imageUrl: document.getElementById('mem-img').value.trim(),
+          date: new Date().toLocaleDateString(),
+          createdAt: serverTimestamp()
+        });
+        form.classList.add('hidden');
+        ['mem-title','mem-desc','mem-img'].forEach(id => document.getElementById(id).value = '');
+      };
+
+      onSnapshot(query(col, orderBy('createdAt', 'asc')), snap => {
+        const list = document.getElementById('memories-list');
+        list.innerHTML = '';
+        if (snap.empty) {
+          list.innerHTML = '<div class="empty-state"><p>No memories yet — add your first one!</p></div>';
+          return;
+        }
+        snap.forEach(d => {
+          const m = d.data();
+          const card = document.createElement('div');
+          card.className = 'memory-card';
+          card.innerHTML = `
+            <img src="${m.imageUrl || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=400'}" alt="${m.title}" onerror="this.src='https://images.unsplash.com/photo-1488085061387-422e29b40080?w=400'" />
+            <div class="memory-info">
+              <h4>${m.title}</h4>
+              <p>${m.description || ''}</p>
+              <div class="memory-meta">
+                <span class="date">${m.date || ''}</span>
+                <button class="delete-btn" data-id="${d.id}">Delete</button>
+              </div>
+            </div>
+          `;
+          card.querySelector('.delete-btn').onclick = () => deleteDoc(doc(db, 'trips', tripId, 'memories', d.id));
+          list.appendChild(card);
+        });
+      });
+    }
+
+    // ── TODOS ─────────────────────────────────────────────────
+    function initTodos() {
+      const col = collection(db, 'trips', tripId, 'todos');
+
+      document.getElementById('add-todo-btn').onclick = addTodo;
+      document.getElementById('todo-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addTodo();
+      });
+
+      async function addTodo() {
+        const text = document.getElementById('todo-input').value.trim();
+        if (!text) return;
+        await addDoc(col, { text, completed: false, createdAt: serverTimestamp() });
+        document.getElementById('todo-input').value = '';
+      }
+
+      onSnapshot(query(col, orderBy('createdAt', 'asc')), snap => {
+        const list = document.getElementById('todos-list');
+        list.innerHTML = '';
+        const todos = [];
+        snap.forEach(d => todos.push({ id: d.id, ...d.data() }));
+
+        if (todos.length === 0) {
+          list.innerHTML = '<div class="empty-state"><p>No tasks yet — add one above!</p></div>';
+        } else {
+          todos.forEach(todo => {
+            const row = document.createElement('div');
+            row.className = 'todo-row' + (todo.completed ? ' completed' : '');
+            row.innerHTML = `
+              <input type="checkbox" ${todo.completed ? 'checked' : ''} />
+              <label>${todo.text}</label>
+              <button class="delete-btn" data-id="${todo.id}">🗑</button>
+            `;
+            row.querySelector('input').onchange = () =>
+              updateDoc(doc(db, 'trips', tripId, 'todos', todo.id), { completed: !todo.completed });
+            row.querySelector('.delete-btn').onclick = () =>
+              deleteDoc(doc(db, 'trips', tripId, 'todos', todo.id));
+            list.appendChild(row);
+          });
+        }
+
+        // Progress
+        const done = todos.filter(t => t.completed).length;
+        const total = todos.length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        document.getElementById('progress-pct').textContent = pct + '%';
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-done').textContent = done;
+        document.getElementById('stat-left').textContent = total - done;
+      });
+    }
+
+    // ── LOGS ──────────────────────────────────────────────────
+    function initLogs() {
+      const col = collection(db, 'trips', tripId, 'logs');
+      const form = document.getElementById('add-log-form');
+
+      document.getElementById('add-log-btn').onclick = () => form.classList.toggle('hidden');
+      document.getElementById('cancel-log-btn').onclick = () => form.classList.add('hidden');
+
+      document.getElementById('save-log-btn').onclick = async () => {
+        const title = document.getElementById('log-title').value.trim();
+        const content = document.getElementById('log-content').value.trim();
+        if (!title || !content) return;
+        await addDoc(col, {
+          title, content,
+          date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }),
+          createdAt: serverTimestamp()
+        });
+        form.classList.add('hidden');
+        ['log-title','log-content'].forEach(id => document.getElementById(id).value = '');
+      };
+
+      onSnapshot(query(col, orderBy('createdAt', 'desc')), snap => {
+        const list = document.getElementById('logs-list');
+        list.innerHTML = '';
+        if (snap.empty) {
+          list.innerHTML = '<div class="empty-state"><p>No log entries yet — document your experiences!</p></div>';
+          return;
+        }
+        snap.forEach(d => {
+          const log = d.data();
+          const card = document.createElement('div');
+          card.className = 'log-card';
+          card.innerHTML = `
+            <div class="log-header">
+              <div><h4>${log.title}</h4><span class="date">${log.date || ''}</span></div>
+              <button class="delete-btn" data-id="${d.id}">Delete</button>
+            </div>
+            <p class="log-content">${log.content}</p>
+          `;
+          card.querySelector('.delete-btn').onclick = () => deleteDoc(doc(db, 'trips', tripId, 'logs', d.id));
+          list.appendChild(card);
+        });
+      });
+    }
+
+    // ── CALENDAR ──────────────────────────────────────────────
+    const categoryColors = {
+      sightseeing: '#3b82f6', food: '#f97316',
+      activity: '#22c55e', transport: '#a855f7', other: '#6b7280'
+    };
+
+    function initCalendar() {
+      const col = collection(db, 'trips', tripId, 'activities');
+      const form = document.getElementById('add-activity-form');
+
+      document.getElementById('add-activity-btn').onclick = () => form.classList.toggle('hidden');
+      document.getElementById('cancel-activity-btn').onclick = () => form.classList.add('hidden');
+
+      document.getElementById('save-activity-btn').onclick = async () => {
+        const date = document.getElementById('act-date').value;
+        const time = document.getElementById('act-time').value;
+        const title = document.getElementById('act-title').value.trim();
+        if (!date || !time || !title) return;
+        await addDoc(col, {
+          date, time, title,
+          description: document.getElementById('act-desc').value.trim(),
+          category: document.getElementById('act-category').value,
+          createdAt: serverTimestamp()
+        });
+        form.classList.add('hidden');
+        ['act-date','act-time','act-title','act-desc'].forEach(id => document.getElementById(id).value = '');
+      };
+
+      onSnapshot(query(col, orderBy('date', 'asc')), snap => {
+        const list = document.getElementById('activities-list');
+        list.innerHTML = '';
+        if (snap.empty) {
+          list.innerHTML = '<div class="empty-state"><p>No activities yet — start planning!</p></div>';
+          return;
+        }
+
+        const grouped = {};
+        snap.forEach(d => {
+          const a = { id: d.id, ...d.data() };
+          if (!grouped[a.date]) grouped[a.date] = [];
+          grouped[a.date].push(a);
+        });
+
+        Object.entries(grouped).forEach(([date, acts]) => {
+          const section = document.createElement('div');
+          section.className = 'activity-day';
+          const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+            weekday:'long', year:'numeric', month:'long', day:'numeric'
+          });
+          section.innerHTML = `<div class="day-header">📅 ${dateLabel}</div>`;
+
+          acts.sort((a,b) => a.time.localeCompare(b.time)).forEach(act => {
+            const color = categoryColors[act.category] || '#6b7280';
+            const row = document.createElement('div');
+            row.className = 'activity-row';
+            row.style.borderLeftColor = color;
+            row.innerHTML = `
+              <span class="act-time">🕐 ${act.time}</span>
+              <div class="act-body">
+                <strong>${act.title}</strong>
+                ${act.description ? `<p>${act.description}</p>` : ''}
+                <span class="act-badge" style="background:${color}20;color:${color}">${act.category}</span>
+              </div>
+              <button class="delete-btn" data-id="${act.id}">Delete</button>
+            `;
+            row.querySelector('.delete-btn').onclick = () => deleteDoc(doc(db, 'trips', tripId, 'activities', act.id));
+            section.appendChild(row);
+          });
+          list.appendChild(section);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

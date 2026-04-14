@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trip Memories – Dashboard</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="app-page">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-2-5.5-.5L10 5 1.8 6.2a1 1 0 0 0-.5 1.7l2.5 2.5L2.3 13a1 1 0 0 0 .3 1l7.4 7.4a1 1 0 0 0 1-.3l2.6-1.5 2.5 2.5a1 1 0 0 0 1.7-.5z"/></svg>
+        </div>
+        <span class="brand-name">Trip Memories</span>
+      </div>
+      <div class="topbar-right">
+        <span id="welcome-msg" class="welcome-text"></span>
+        <button id="logout-btn" class="btn btn-secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h2>Your Trips</h2>
+      <p class="text-muted">Browse and manage your travel memories</p>
+    </div>
+
+    <div class="trips-grid" id="trips-grid">
+      <!-- Trip cards injected by JS -->
+    </div>
+
+    <div class="add-trip-section">
+      <button id="add-trip-btn" class="btn btn-primary">+ Add New Trip</button>
+    </div>
+
+    <!-- Add Trip Modal -->
+    <div id="add-trip-modal" class="modal hidden">
+      <div class="modal-box">
+        <h3>New Trip</h3>
+        <div class="form-group">
+          <label>Trip Name</label>
+          <input type="text" id="trip-name" placeholder="e.g. Praha 2025" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="trip-desc" placeholder="e.g. Summer adventure with the crew" />
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="text" id="trip-date" placeholder="e.g. June 2025" />
+        </div>
+        <div class="form-group">
+          <label>Cover Image URL <span class="text-muted">(optional)</span></label>
+          <input type="text" id="trip-image" placeholder="https://..." />
+        </div>
+        <div class="modal-actions">
+          <button id="save-trip-btn" class="btn btn-primary">Create Trip</button>
+          <button id="cancel-trip-btn" class="btn btn-ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth, db } from '../js/firebase.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import {
+      collection, addDoc, onSnapshot,
+      serverTimestamp, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+    const ALLOWED_EMAILS = [
+      "yourmail@gmail.com",
+      "friend1@gmail.com",
+      "friend2@gmail.com"
+    ];
+
+    // Auth guard
+    onAuthStateChanged(auth, (user) => {
+      if (!user || !ALLOWED_EMAILS.includes(user.email)) {
+        window.location.href = 'login.html';
+        return;
+      }
+      document.getElementById('welcome-msg').textContent = `Welcome, ${user.displayName || user.email}`;
+      loadTrips();
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      signOut(auth).then(() => window.location.href = 'login.html');
+    });
+
+    // Load trips in real-time
+    function loadTrips() {
+      const q = query(collection(db, 'trips'), orderBy('createdAt', 'desc'));
+      onSnapshot(q, (snapshot) => {
+        const grid = document.getElementById('trips-grid');
+        grid.innerHTML = '';
+        snapshot.forEach(doc => {
+          grid.appendChild(buildTripCard(doc.id, doc.data()));
+        });
+        if (snapshot.empty) {
+          grid.innerHTML = '<p class="empty-state">No trips yet — add your first one!</p>';
+        }
+      });
+    }
+
+    function buildTripCard(id, trip) {
+      const card = document.createElement('div');
+      card.className = 'trip-card';
+      card.innerHTML = `
+        <img src="${trip.image || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800'}" alt="${trip.name}" class="trip-img" />
+        <div class="trip-info">
+          <h3>${trip.name}</h3>
+          <p class="trip-desc">${trip.description || ''}</p>
+          <div class="trip-meta">
+            <span>📅 ${trip.date || ''}</span>
+          </div>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        window.location.href = `trip.html?id=${id}&name=${encodeURIComponent(trip.name)}`;
+      });
+      return card;
+    }
+
+    // Add trip modal
+    const modal = document.getElementById('add-trip-modal');
+    document.getElementById('add-trip-btn').addEventListener('click', () => modal.classList.remove('hidden'));
+    document.getElementById('cancel-trip-btn').addEventListener('click', () => modal.classList.add('hidden'));
+
+    document.getElementById('save-trip-btn').addEventListener('click', async () => {
+      const name = document.getElementById('trip-name').value.trim();
+      if (!name) return alert('Please enter a trip name');
+      await addDoc(collection(db, 'trips'), {
+        name,
+        description: document.getElementById('trip-desc').value.trim(),
+        date: document.getElementById('trip-date').value.trim(),
+        image: document.getElementById('trip-image').value.trim(),
+        createdAt: serverTimestamp()
+      });
+      modal.classList.add('hidden');
+      document.getElementById('trip-name').value = '';
+      document.getElementById('trip-desc').value = '';
+      document.getElementById('trip-date').value = '';
+      document.getElementById('trip-image').value = '';
+    });
+  </script>
+</body>
+</html>
