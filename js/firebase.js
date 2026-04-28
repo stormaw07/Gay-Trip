@@ -15,7 +15,7 @@ export const ALLOWED_EMAILS = [
   "stormaw07@gmail.com",
   "stormwinnem@gmail.com",
   "kine.sandvik@gmail.com",
-  "aseluras@gmail.com",
+  "ase.luras@gmail.com",
   "mailnicholai@gmail.com"
   // Legg til deres eposter som dere vil bruke på nettsiden her (OG PUSH TIL GITHUB)
 ];
