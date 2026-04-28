@@ -31,14 +31,9 @@
       GoogleAuthProvider,
       signInWithPopup,
       onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // 🔧 Add your friends' Gmail addresses here
-    const ALLOWED_EMAILS = [
-      "yourmail@gmail.com",
-      "friend1@gmail.com",
-      "friend2@gmail.com"
-    ];
+    import { ALLOWED_EMAILS } from '../js/firebase.js';
 
     onAuthStateChanged(auth, (user) => {
       if (user && ALLOWED_EMAILS.includes(user.email)) {

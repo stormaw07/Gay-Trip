@@ -70,17 +70,13 @@
 
   <script type="module">
     import { auth, db } from '../js/firebase.js';
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import {
       collection, addDoc, onSnapshot,
       serverTimestamp, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const ALLOWED_EMAILS = [
-      "yourmail@gmail.com",
-      "friend1@gmail.com",
-      "friend2@gmail.com"
-    ];
+    import { ALLOWED_EMAILS } from '../js/firebase.js';
 
     // Auth guard
     onAuthStateChanged(auth, (user) => {
