@@ -335,72 +335,84 @@
       activity: '#22c55e', transport: '#a855f7', other: '#6b7280'
     };
 
-    function initCalendar() {
-      const col = collection(db, 'trips', tripId, 'activities');
-      const form = document.getElementById('add-activity-form');
+function initCalendar() {
+  const col = collection(db, 'trips', tripId, 'activities');
+  const form = document.getElementById('add-activity-form');
 
-      document.getElementById('add-activity-btn').onclick = () => form.classList.toggle('hidden');
-      document.getElementById('cancel-activity-btn').onclick = () => form.classList.add('hidden');
+  document.getElementById('add-activity-btn').onclick = () => form.classList.toggle('hidden');
+  document.getElementById('cancel-activity-btn').onclick = () => form.classList.add('hidden');
 
-      document.getElementById('save-activity-btn').onclick = async () => {
-        const date = document.getElementById('act-date').value;
-        const time = document.getElementById('act-time').value;
-        const title = document.getElementById('act-title').value.trim();
-        if (!date || !time || !title) return;
-        await addDoc(col, {
-          date, time, title,
-          description: document.getElementById('act-desc').value.trim(),
-          category: document.getElementById('act-category').value,
-          createdAt: serverTimestamp()
-        });
-        form.classList.add('hidden');
-        ['act-date','act-time','act-title','act-desc'].forEach(id => document.getElementById(id).value = '');
-      };
+  document.getElementById('save-activity-btn').onclick = async () => {
+    const date = document.getElementById('act-date').value;
+    const time = document.getElementById('act-time').value;
+    const title = document.getElementById('act-title').value.trim();
+    if (!date || !time || !title) return;
+    await addDoc(col, {
+      date, time, title,
+      description: document.getElementById('act-desc').value.trim(),
+      category: document.getElementById('act-category').value,
+      createdAt: serverTimestamp()
+    });
+    form.classList.add('hidden');
+    ['act-date','act-time','act-title','act-desc'].forEach(id => document.getElementById(id).value = '');
+  };
 
-      onSnapshot(query(col, orderBy('date', 'asc')), snap => {
-        const list = document.getElementById('activities-list');
-        list.innerHTML = '';
-        if (snap.empty) {
-          list.innerHTML = '<div class="empty-state"><p>No activities yet — start planning!</p></div>';
-          return;
-        }
-
-        const grouped = {};
-        snap.forEach(d => {
-          const a = { id: d.id, ...d.data() };
-          if (!grouped[a.date]) grouped[a.date] = [];
-          grouped[a.date].push(a);
-        });
-
-        Object.entries(grouped).forEach(([date, acts]) => {
-          const section = document.createElement('div');
-          section.className = 'activity-day';
-          const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
-            weekday:'long', year:'numeric', month:'long', day:'numeric'
-          });
-          section.innerHTML = `<div class="day-header">${dateLabel}</div>`;
-
-          acts.sort((a,b) => a.time.localeCompare(b.time)).forEach(act => {
-            const color = categoryColors[act.category] || '#6b7280';
-            const row = document.createElement('div');
-            row.className = 'activity-row';
-            //row.style.borderLeftColor = color;
-            row.innerHTML = `
-              <span class="act-time">${act.time}</span>
-              <div class="act-body">
-                <strong>${act.title}</strong>
-                ${act.description ? `<p>${act.description}</p>` : ''}
-                <span class="act-badge">${act.category}</span>
-              </div>
-              <button class="delete-btn" data-id="${act.id}">Delete</button>
-            `;
-            row.querySelector('.delete-btn').onclick = () => deleteDoc(doc(db, 'trips', tripId, 'activities', act.id));
-            section.appendChild(row);
-          });
-          list.appendChild(section);
-        });
-      });
+  onSnapshot(query(col, orderBy('date', 'asc')), snap => {
+    const list = document.getElementById('activities-list');
+    list.innerHTML = '';
+    if (snap.empty) {
+      list.innerHTML = '<div class="empty-state"><p>No activities yet — start planning!</p></div>';
+      return;
     }
+
+    const grouped = {};
+    snap.forEach(d => {
+      const a = { id: d.id, ...d.data() };
+      if (!grouped[a.date]) grouped[a.date] = [];
+      grouped[a.date].push(a);
+    });
+
+    Object.entries(grouped).forEach(([date, acts]) => {
+      const section = document.createElement('div');
+      section.className = 'activity-day';
+      const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('nb-NO', {
+        weekday:'long', year:'numeric', month:'long', day:'numeric'
+      });
+      section.innerHTML = `<div class="day-header">${dateLabel}</div>`;
+
+      acts.sort((a,b) => a.time.localeCompare(b.time)).forEach(act => {
+        const row = document.createElement('div');
+        row.className = 'activity-row';
+        row.innerHTML = `
+          <span class="act-time" contenteditable="true" title="Klikk for å endre tid" data-id="${act.id}">${act.time}</span>
+          <div class="act-body">
+            <strong>${act.title}</strong>
+            ${act.description ? `<p>${act.description}</p>` : ''}
+            <span class="act-badge">${act.category}</span>
+          </div>
+          <button class="delete-btn" data-id="${act.id}">Delete</button>
+        `;
+
+        row.querySelector('.act-time').addEventListener('blur', async (e) => {
+          const newTime = e.target.textContent.trim();
+          const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+          if (!timeRegex.test(newTime)) {
+            e.target.textContent = act.time;
+            return;
+          }
+          if (newTime !== act.time) {
+            await updateDoc(doc(db, 'trips', tripId, 'activities', act.id), { time: newTime });
+          }
+        });
+
+        row.querySelector('.delete-btn').onclick = () => deleteDoc(doc(db, 'trips', tripId, 'activities', act.id));
+        section.appendChild(row);
+      });
+      list.appendChild(section);
+    });
+  });
+}
+
   </script>
 </body>
 </html>
