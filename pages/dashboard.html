@@ -159,8 +159,7 @@
       await addDoc(collection(db, 'trips'), {
         name,
         description: document.getElementById('trip-desc').value.trim(),
-        date: `${document.getElementById('trip-date-start').value.trim().split("-").reverse().join(".")} - ${document.getElementById('trip-date-start').value.trim().split("-").reverse().join(".")}`,
-        image: document.getElementById('trip-image').value.trim(),
+        date: `${document.getElementById('trip-date-start').value.trim().split("-").reverse().join(".")} - ${document.getElementById('trip-date-end').value.trim().split("-").reverse().join(".")}`,        image: document.getElementById('trip-image').value.trim(),
         createdAt: serverTimestamp()
       });
       modal.classList.add('hidden');
