@@ -82,7 +82,7 @@
     import { auth, db } from '../js/firebase.js';
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import {
-      collection, addDoc, onSnapshot,
+      collection, addDoc, deleteDoc, doc, onSnapshot,
       serverTimestamp, query, orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -108,8 +108,8 @@
       onSnapshot(q, (snapshot) => {
         const grid = document.getElementById('trips-grid');
         grid.innerHTML = '';
-        snapshot.forEach(doc => {
-          grid.appendChild(buildTripCard(doc.id, doc.data()));
+        snapshot.forEach(docSnap => {
+          grid.appendChild(buildTripCard(docSnap.id, docSnap.data()));
         });
         if (snapshot.empty) {
           grid.innerHTML = '<p class="empty-state">No trips yet — add your first one!</p>';
@@ -117,24 +117,36 @@
       });
     }
 
-    function buildTripCard(id, trip) {
-      const card = document.createElement('div');
-      card.className = 'trip-card';
-      card.innerHTML = `
-        <img src="${trip.image || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800'}" alt="${trip.name}" class="trip-img" />
-        <div class="trip-info">
-          <h3>${trip.name.toUpperCase()}</h3>
-          <p class="trip-desc">${trip.description || ''}</p>
-          <div class="trip-meta">
-            <span>📅 ${trip.date || ''}</span>
-          </div>
+  function buildTripCard(id, trip) {
+    const card = document.createElement('div');
+    card.className = 'trip-card';
+    card.innerHTML = `
+      <img src="${trip.image || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800'}" alt="${trip.name}" class="trip-img" />
+      <div class="trip-info">
+        <h3>${trip.name.toUpperCase()}</h3>
+        <p class="trip-desc">${trip.description || ''}</p>
+        <div class="trip-meta">
+          <span>📅 ${trip.date || ''}</span>
+          <button class="delete-btn" data-id="${id}">Delete</button>
         </div>
-      `;
-      card.addEventListener('click', () => {
-        window.location.href = `trip.html?id=${id}&name=${encodeURIComponent(trip.name)}`;
-      });
-      return card;
-    }
+      </div>
+    `;
+
+    // Navigate to trip on card click
+    card.addEventListener('click', () => {
+      window.location.href = `trip.html?id=${id}&name=${encodeURIComponent(trip.name)}`;
+    });
+
+    // Delete — stopPropagation so it doesn't also navigate
+    card.querySelector('.delete-btn').addEventListener('click', async (e) => {
+        e.stopPropagation();
+      const confirmed = confirm(`Delete "${trip.name}"? This cannot be undone.`);
+      if (!confirmed) return;
+      await deleteDoc(doc(db, 'trips', id));
+    });
+
+    return card;
+  }
 
     // Add trip modal
     const modal = document.getElementById('add-trip-modal');

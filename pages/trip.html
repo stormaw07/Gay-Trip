@@ -262,7 +262,7 @@
             row.innerHTML = `
               <input type="checkbox" ${todo.completed ? 'checked' : ''} />
               <label>${todo.text}</label>
-              <button class="delete-btn" data-id="${todo.id}">🗑</button>
+              <button class="delete-btn" data-id="${todo.id}">Delete</button>
             `;
             row.querySelector('input').onchange = () =>
               updateDoc(doc(db, 'trips', tripId, 'todos', todo.id), { completed: !todo.completed });
