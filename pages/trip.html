@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trip Memories – Trip</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="https://use.typekit.net/chw7yga.css">
 </head>
 <body class="app-page">
 
@@ -34,17 +35,17 @@
 
     <!-- Tabs -->
     <div class="tabs">
-      <button class="tab-btn active" data-tab="memories">📷 Memories</button>
-      <button class="tab-btn" data-tab="todos">✅ To-Do</button>
-      <button class="tab-btn" data-tab="logs">📝 Trip Logs</button>
-      <button class="tab-btn" data-tab="calendar">📅 Calendar</button>
+      <button class="tab-btn active" data-tab="memories" style="background-color: var(--rosa);">Memories</button>
+      <button class="tab-btn" data-tab="todos" style="background-color: var(--light-green);">To-Do</button>
+      <button class="tab-btn" data-tab="logs" style="background-color: var(--dark-green);">Trip Logs</button>
+      <button class="tab-btn" data-tab="calendar" style="background-color: var(--blå);">Calendar</button>
     </div>
 
     <!-- MEMORIES TAB -->
-    <div id="tab-memories" class="tab-panel active">
+    <div id="tab-memories" class="tab-panel active" >
       <div class="panel-header">
         <h3>Photo Memories</h3>
-        <button id="add-memory-btn" class="btn btn-primary">+ Add Memory</button>
+        <button id="add-memory-btn" class="btn btn-tabs">+ Add Memory</button>
       </div>
       <div id="add-memory-form" class="form-card hidden">
         <div class="form-group"><label>Title</label><input type="text" id="mem-title" placeholder="Memory title" /></div>
@@ -89,9 +90,9 @@
     <div id="tab-logs" class="tab-panel hidden">
       <div class="panel-header">
         <h3>Trip Logs</h3>
-        <button id="add-log-btn" class="btn btn-primary">+ Add Entry</button>
+        <button id="add-log-btn" class="btn btn-tabs">+ Add Entry</button>
       </div>
-      <div id="add-log-form" class="form-card hidden">
+      <div id="add-log-form" class="form-card hidden black-txt">
         <div class="form-group"><label>Title</label><input type="text" id="log-title" placeholder="Entry title" /></div>
         <div class="form-group"><label>Content</label><textarea id="log-content" rows="6" placeholder="Write about your experience..."></textarea></div>
         <div class="form-actions">
@@ -106,9 +107,9 @@
     <div id="tab-calendar" class="tab-panel hidden">
       <div class="panel-header">
         <h3>Activities Calendar</h3>
-        <button id="add-activity-btn" class="btn btn-primary">+ Add Activity</button>
+        <button id="add-activity-btn" class="btn btn-tabs">+ Add Activity</button>
       </div>
-      <div id="add-activity-form" class="form-card hidden">
+      <div id="add-activity-form" class="form-card hidden black-txt">
         <div class="form-row">
           <div class="form-group"><label>Date</label><input type="date" id="act-date" /></div>
           <div class="form-group"><label>Time</label><input type="time" id="act-time" /></div>
@@ -377,19 +378,19 @@
           const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
             weekday:'long', year:'numeric', month:'long', day:'numeric'
           });
-          section.innerHTML = `<div class="day-header">📅 ${dateLabel}</div>`;
+          section.innerHTML = `<div class="day-header">${dateLabel}</div>`;
 
           acts.sort((a,b) => a.time.localeCompare(b.time)).forEach(act => {
             const color = categoryColors[act.category] || '#6b7280';
             const row = document.createElement('div');
             row.className = 'activity-row';
-            row.style.borderLeftColor = color;
+            //row.style.borderLeftColor = color;
             row.innerHTML = `
-              <span class="act-time">🕐 ${act.time}</span>
+              <span class="act-time">${act.time}</span>
               <div class="act-body">
                 <strong>${act.title}</strong>
                 ${act.description ? `<p>${act.description}</p>` : ''}
-                <span class="act-badge" style="background:${color}20;color:${color}">${act.category}</span>
+                <span class="act-badge">${act.category}</span>
               </div>
               <button class="delete-btn" data-id="${act.id}">Delete</button>
             `;

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trip Memories – Dashboard</title>
   <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="https://use.typekit.net/chw7yga.css">
 </head>
 <body class="app-page">
 
@@ -28,17 +29,16 @@
 
   <main class="main-content">
     <div class="page-header">
-      <h2>Your Trips</h2>
-      <p class="text-muted">Browse and manage your travel memories</p>
+      <div>
+        <h2>Your Trips</h2>
+        <p class="text-muted">Browse and manage your travel memories</p>
+      </div>
+      <div class="add-trip-section">
+        <button id="add-trip-btn" class="btn btn-primary">+ Add New Trip</button>
+      </div>
     </div>
 
-    <div class="trips-grid" id="trips-grid">
-      <!-- Trip cards injected by JS -->
-    </div>
 
-    <div class="add-trip-section">
-      <button id="add-trip-btn" class="btn btn-primary">+ Add New Trip</button>
-    </div>
 
     <!-- Add Trip Modal -->
     <div id="add-trip-modal" class="modal hidden">
@@ -52,9 +52,15 @@
           <label>Description</label>
           <input type="text" id="trip-desc" placeholder="e.g. Summer adventure with the crew" />
         </div>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="text" id="trip-date" placeholder="e.g. June 2025" />
+        <div id="date-group">
+          <div class="form-group date">
+            <label>Start date</label>
+            <input type="date" id="trip-date-start">
+          </div>
+          <div class="form-group">
+            <label>End date</label>
+            <input type="date" id="trip-date-end">
+          </div> 
         </div>
         <div class="form-group">
           <label>Cover Image URL <span class="text-muted">(optional)</span></label>
@@ -66,6 +72,10 @@
         </div>
       </div>
     </div>
+    <div class="trips-grid" id="trips-grid">
+      <!-- Trip cards injected by JS -->
+    </div>
+
   </main>
 
   <script type="module">
@@ -113,7 +123,7 @@
       card.innerHTML = `
         <img src="${trip.image || 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800'}" alt="${trip.name}" class="trip-img" />
         <div class="trip-info">
-          <h3>${trip.name}</h3>
+          <h3>${trip.name.toUpperCase()}</h3>
           <p class="trip-desc">${trip.description || ''}</p>
           <div class="trip-meta">
             <span>📅 ${trip.date || ''}</span>
@@ -137,14 +147,15 @@
       await addDoc(collection(db, 'trips'), {
         name,
         description: document.getElementById('trip-desc').value.trim(),
-        date: document.getElementById('trip-date').value.trim(),
+        date: `${document.getElementById('trip-date-start').value.trim().split("-").reverse().join(".")} - ${document.getElementById('trip-date-start').value.trim().split("-").reverse().join(".")}`,
         image: document.getElementById('trip-image').value.trim(),
         createdAt: serverTimestamp()
       });
       modal.classList.add('hidden');
       document.getElementById('trip-name').value = '';
       document.getElementById('trip-desc').value = '';
-      document.getElementById('trip-date').value = '';
+      document.getElementById('trip-date-start').value = '';
+      document.getElementById('trip-date-end').value = '';
       document.getElementById('trip-image').value = '';
     });
   </script>
